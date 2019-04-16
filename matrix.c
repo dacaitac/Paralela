@@ -3,13 +3,12 @@
 #include <pthread.h>
 #include <time.h>
 
-#define N 1328
-#define NUMTHREADS 2 // Debe ser multiplo de 16
+#define N 3000
+#define NUMTHREADS 80 // Debe ser multiplo de 16
 
 
-int repa=N/NUMTHREADS;
-int res[N][N], A[N][N], B[N][N] ;
-time_t t_ini, t_fin;
+int repa = N/NUMTHREADS;
+int res[N][N], A[N][N], B[N][N];
 
 struct params{
 	int ini;
@@ -31,14 +30,14 @@ void *mult( void *pArg){
 	}
 
 	return 0;
-} 
+}
 
 void fill(){
 	int i,j;
 	for ( i = 0; i < N; ++i ) {
 		for ( j = 0; j < N; ++j ) {
-			A[i][j]=rand()%5;
-			B[i][j]=rand()%5;
+			A[i][j]=rand() % 5;
+			B[i][j]=rand() % 5;
 		}
 	}
 }
@@ -47,18 +46,18 @@ void printeo(int a){
 	int i,j;
 	for ( i = 0; i < N; ++i ) {
 		for ( j = 0; j < N; ++j ) {
-			if(a==1){
-				if(res[j][i]>=10)
+			if(a == 1){
+				if(res[j][i] >= 10)
 					printf("%d ",res[j][i]);
 				else
 					printf("%d  ",res[j][i]);
-			}else if(a==2){
-				if(A[j][i]>=10)
+			}else if(a == 2){
+				if(A[j][i] >= 10)
 					printf("%d ",A[j][i]);
 				else
 					printf("%d  ",A[j][i]);
 			}else{
-				if(B[j][i]>=10)
+				if(B[j][i] >= 10)
 					printf("%d ",B[j][i]);
 				else
 					printf("%d  ",B[j][i]);
@@ -71,10 +70,10 @@ void printeo(int a){
 
 
 int main(int argc, char **argv) {
-	t_ini = time(NULL);
-	//printf("Pre Handles\n");
-	pthread_t tHandles[NUMTHREADS];
+	struct timespec ts1, ts2;
+
 	//printf("Pre Tnum\n");
+	pthread_t tHandles[NUMTHREADS];
 	int i, j;
 	//printf("Pre Struct\n");
 	struct params inter[NUMTHREADS];
@@ -82,6 +81,7 @@ int main(int argc, char **argv) {
 	//printf("Pre llenado\n");
 	fill();
 	//printf("Pre Hilos\n");
+	clock_gettime(CLOCK_REALTIME, &ts1);	//printf("Pre Handles\n");
 	for ( i = 0; i < NUMTHREADS; i++ ) {
 		inter[i].ini=i*repa;
 		inter[i].fin=inter[i].ini+repa;
@@ -91,13 +91,10 @@ int main(int argc, char **argv) {
 	for ( i = 0; i < NUMTHREADS; ++i ) {
 		pthread_join(tHandles[i], NULL);
 	}
-	//printf("Pos Hilos Pre Dibujo\n");
-	//printeo(1);
-	//printeo(2);
-	//printeo(3);
-	//printf("Pos Dibujo\n");
-	t_fin = time(NULL);
-	double secs = (double)(t_fin-t_ini)*1000/CLOCKS_PER_SEC;
-	printf("%.16g milisegundos\n", secs );
-	return 0;
+
+	clock_gettime(CLOCK_REALTIME, &ts2);
+  // double secs = (double)(t_fin-t_ini)*1000/CLOCKS_PER_SEC;
+  printf("%ld.%09ld\n", (long)(ts2.tv_sec - ts1.tv_sec),
+         abs(ts2.tv_nsec - ts1.tv_nsec));
+  return 0;
 }

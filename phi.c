@@ -4,9 +4,8 @@
 #include <time.h>
 
 #define NUM_RECT 300000000
-#define NUMTHREADS 12
+#define NUMTHREADS 16
 double gPi = 0.0;  //  global accumulator for areas computed
-pthread_mutex_t gLock;
 
 void *area(void *pArg){
    int myNum = *((int *)pArg);
@@ -18,19 +17,16 @@ void *area(void *pArg){
      x = -1 + (i + 0.5f) * h;
      partialSum += sqrt(1.0 - x*x) * h;
    }
-   pthread_mutex_lock(&gLock);
    gPi += partialSum;  // add partial to global final answer
-   pthread_mutex_unlock(&gLock);
    return 0;
 }
 
 int main(int argc, char **argv) {
-  clock_t t_ini, t_fin;
-  t_ini = clock();
+  struct timespec ts1, ts2;
+  clock_gettime(CLOCK_REALTIME, &ts1);
 
   pthread_t tHandles[NUMTHREADS];
   int tNum[NUMTHREADS], i;
-  pthread_mutex_init(&gLock, NULL);
 
   for ( i = 0; i < NUMTHREADS; ++i ) {
     tNum[i] = i;
@@ -41,9 +37,8 @@ int main(int argc, char **argv) {
   }
   gPi *= 2.0;
   printf("Computed value of Pi:  %12.9f\n", gPi );
-  pthread_mutex_destroy(&gLock);
-  t_fin = clock();
-  double secs = (double)(t_fin-t_ini)*1000/CLOCKS_PER_SEC;
-  printf("%.16g milisegundos\n", secs );
-  return 0;
+  clock_gettime(CLOCK_REALTIME, &ts2);
+  // double secs = (double)(t_fin-t_ini)*1000/CLOCKS_PER_SEC;
+  printf("%ld.%09ld\n", (long)(ts2.tv_sec - ts1.tv_sec),
+         ts2.tv_nsec - ts1.tv_nsec);  return 0;
 }
