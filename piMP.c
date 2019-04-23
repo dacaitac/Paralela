@@ -18,16 +18,16 @@ int main(){
 	{ 
 	int th = omp_get_thread_num();
 
-	for(int i = th*h; i < (th + 1)*h; i++){
-		if(i % 2 == 0){
-		  pi[th][0] += 4.0/(2.0*i + 1);
-		}
-		else
-		{
-		  pi[th][0] += -4.0/(2.0*i + 1);
-		}
+		for(int i = th*h; i < (th + 1)*h; i++){
+			if(i % 2 == 0){
+			  pi[th][0] += 4.0/(2.0*i + 1);
+			}
+			else
+			{
+			  pi[th][0] += -4.0/(2.0*i + 1);
+			}
 
-	}
+		}
 	}
 	for(int i = 0; i < NUM_THREADS; i++){
 		gpi += pi[i][0];		
@@ -39,4 +39,5 @@ int main(){
 	printf("Computed value of Pi:  %12.9f\n", gpi );
 	return 0;
 }
+
 
