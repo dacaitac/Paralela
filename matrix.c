@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 
-#define N 3000
+#define N 6000
 #define NUMTHREADS 80 // Debe ser multiplo de 16
 
 
