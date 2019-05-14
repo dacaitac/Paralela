@@ -40,3 +40,15 @@ Si quedó todo bien instalado se debe poder con
 g++ m.cpp -o app `pkg-config --cflags --libs opencv`
 
 #### Asegurarse que la instalación haya quedado en /usr/local/include/opencv2 que es donde estan los include que se usan para compilar
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+## Ejecución del programa
+
+Al iniciar con la ejecucion del programa, se debe utilizar el siguiente comando
+
+./app  NombreDeLaImagen.ElFormatoQueGuste NombreDeLaImagen_Blur.ElMismoFormato #(Tamaño Del Kernel) #(Numero De Hilos)
+
+### Funcionamiento del programa
+
+El programa usa la libreria OpenCV con el fin de poder trabajar la imagen como si fuera una matriz. Así, utilizando un algoritmo de convolucion de matrices, se puede generar el efecto borroso. Inicialmente, la imagen es copiada en una matriz de numeros enteros, donde cada numero representa el valor de un pixel. Para poder repartir la carga de trabajo entre varios hilos, se separó la matriz por filas, y cada sección es operada por un hilo diferente. Despues de cada operacion, los valores obtenidos de la convolución, son guardados en una nueva matriz. Y esta a su vez es transferida a un nuevo archivo de imagen, con el efecto borroso, ya generado.
