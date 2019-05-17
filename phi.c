@@ -23,7 +23,7 @@ void *area(void *pArg){
 
 int main(int argc, char **argv) {
   struct timespec ts1, ts2;
-  clock_gettime(CLOCK_REALTIME, &ts1);
+  clock_gettime(CLOCKS_PER_SEC, &ts1);
 
   pthread_t tHandles[NUMTHREADS];
   int tNum[NUMTHREADS], i;
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
   }
   gPi *= 2.0;
   printf("Computed value of Pi:  %12.9f\n", gPi );
-  clock_gettime(CLOCK_REALTIME, &ts2);
+  clock_gettime(CLOCKS_PER_SEC, &ts2);
   // double secs = (double)(t_fin-t_ini)*1000/CLOCKS_PER_SEC;
   printf("%ld.%09ld\n", (long)(ts2.tv_sec - ts1.tv_sec),
          ts2.tv_nsec - ts1.tv_nsec);  return 0;
