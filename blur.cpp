@@ -52,7 +52,7 @@ void *kernel(void *pArg){
                     val += img[k][l];
                 }
             }
-            img[i][j] = val/(rad*rad);    
+            img[i][j] = val/(filter*filter);    
         }   
     }
 
