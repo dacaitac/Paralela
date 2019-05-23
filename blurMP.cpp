@@ -45,18 +45,7 @@ struct params *kernel(struct params *p){
     // inicio o el final de la convolución para evitar que se desborde la imagen
     if(y1 == 0){ y1 += rad; }                                                   
     if(y2 == dimy){ y2 -= rad; }  
-
-    // TODO: Este bloque intenta tener en cuenta los bordes de la imagen para aplicar el efecto
-    // Se espera que también se puedan borrar las lineas horizontales con las que queda
-    if( y1-rad < 0 ){ 
-        upY = y1;
-        cant = ( filter + (y1-rad) ) * filter;
-    }
-    if( y2+rad > dimy ){ 
-        downY = dimy - rad; 
-        cant = ( (y2+rad) - dimy ) * filter;        
-    }    
-
+    
     // ------------------------------CONVOLUCIÓN--------------------------------------------------
     // Se aplica la convolución para cada canal de colores de la imagen.
     // Desde el Main se envía toda la imagen porque se necesitan pixeles
@@ -79,10 +68,16 @@ struct params *kernel(struct params *p){
             }
         }
     }
-
     // Luego de sobreescribir los valores de la imagen con los que se va a trabajar
     // se devuelve solamente el sector de la imagen con la que trabajó este hilo.
     // TODO: Esta puede ser una posible causa de las lineas horizontales    
+    if(y1-rad == 0){
+        y1 = 0;
+    }
+
+    if(y2+rad >= dimy){
+        y2 = dimy;
+    }
     int*** ret = 0;    
     ret = new int**[ch];
     for(k = 0; k < ch; k++){
@@ -94,7 +89,7 @@ struct params *kernel(struct params *p){
             }
         }
     }
-    
+
     // Se agrupan los datos de lo procesado y los retorna.
     struct params *retParams;
     retParams = (struct params*)malloc(sizeof(params));
@@ -111,7 +106,7 @@ int main(int argc, char** argv ){
 
     int NUMTHREADS  = atoi( argv[2] );              // Lee la cantidad de hilos desde la entrada
     int filter      = atoi( argv[3] );              // Lee el tamaño de la matriz de convolucion
-
+	//NUMTHREADS=NUMTHREADS+1;
     Mat imageIn;
     Mat imageOut;
     imageIn  = imread( argv[1], IMREAD_COLOR );     // Lee el nombre de la imagen a trabajar
@@ -121,7 +116,6 @@ int main(int argc, char** argv ){
     int dimy = imageIn.rows;                        // Dimension en Y de la imagen a trabajar
     int dimx = imageIn.cols;                        // Dimension en X de la imagen a trabajar
     int ch   = imageIn.channels();                  // Cantidad de canales que tiene la imagen
-    cout << "Channels: " << ch << endl;
     
     if ( !imageIn.data ){                           // Valida la imagen
         printf("No image data \n");
@@ -163,8 +157,8 @@ int main(int argc, char** argv ){
         // para luego enviarlos al kernel de ejecución
         struct params *sendParams;
         sendParams = (struct params *) malloc(sizeof(params));
-
         // Se indica el inicio y final de la porción de imagen con la que va a trabajar el hilo
+
         sendParams->ini     = th * distr;                        
 		sendParams->end     = sendParams->ini + distr;        
         sendParams->image   = image;            
@@ -177,6 +171,7 @@ int main(int argc, char** argv ){
         // se envían y se guarda el resultado en el primer arreglo de "inter"
 		inter[th][0] = *kernel( sendParams );   
     }
+
 
     // Cada sector de la imagen procesado por cada hilo quedó guardado en el arreglo Inter
     // este bloque recorre ese arreglo para luego guardarlo en la nueva imagen.
