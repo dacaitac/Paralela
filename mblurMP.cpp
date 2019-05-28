@@ -160,7 +160,7 @@ int main(int argc, char** argv ){
         // Se indica el inicio y final de la porción de imagen con la que va a trabajar el hilo
 
         sendParams->ini     = th * distr;                        
-		sendParams->end     = sendParams->ini + distr;        
+		sendParams->end     = sendParams->ini + distr ;        
         sendParams->image   = image;            
         sendParams->filter  = filter;           
         sendParams->dimx    = dimx;
