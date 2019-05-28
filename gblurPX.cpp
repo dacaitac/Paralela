@@ -1,10 +1,9 @@
+#include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
-#include <time.h>
-#include <omp.h>
-#include <math.h>
+#include <pthread.h>
 
 using namespace cv;
 using namespace std;
@@ -25,16 +24,17 @@ struct params{
     int dimy;
 };
 
+void *kernel(void *pArg){    
+    int i, j, k, l, m;
+    struct params *p;
+	p = (struct params *)pArg;
 
-void *kernel(struct params *p){    
-    int i, j, k, l, m;                   // Indices para los ciclos
-    
     // Separa los atributos que llegan por parámetro
-    int y1      = p->ini;
-    int y2      = p->end;
-    int dimy    = p->dimy;
-    int dimx    = p->dimx;
-    int filter  = p->filter;
+    int y1 = p->ini;
+    int y2 = p->end;
+    int dimy = p->dimy;
+    int dimx = p->dimx;
+    int filter = p->filter;
     
     int rad = filter/2;                 // El "radio" de la matriz de convolcion
     //----------------- CONVOLUCION ----------------------
@@ -42,7 +42,7 @@ void *kernel(struct params *p){
     //j = Recorre en x
     //m = Extiende x
     //l = Extiende l
-    for(i = y1; i < y2; i++){                       
+    for(i = y1; i < y2; i++){
         for(j = 0; j < dimx; j++){
             CvScalar pixelIn;
             CvScalar pixelOut;
@@ -80,7 +80,7 @@ void *kernel(struct params *p){
     return 0;
 }
 
-int main(int argc, char** argv ){   
+int main(int argc, char** argv ){
     int i, j, k, l;                                 // Indices para los ciclos
     struct timespec ts1, ts2;                       // Variables para tomar el tiempo
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv ){
     imageOut = cvCloneImage( imageIn );                     // Clona la imagen para imprimir
 
     int dimy = imageIn->height;
-    int dimx = imageIn->width;
+    int dimx = imageIn->width;   
 
     cout << "Dimension: " << dimx << "x"  << dimy << endl;
 
@@ -99,7 +99,6 @@ int main(int argc, char** argv ){
     for(i = 0; i < filter; i++){
         gauss[i] = (float *) malloc(filter * sizeof(float));
     }
-
 
     // Se llena la matriz de convolucion gaussiana
     float sum = 0;
@@ -116,37 +115,28 @@ int main(int argc, char** argv ){
             gauss[i][j] /= sum;
         }
     }
-    
-    // La imagen se divide, según la cantidad de filas que tenga
-    // entre la cantidad de hilos con los que se va a trabajar.
-    int distr = dimy/NUMTHREADS;                            
 
-    // Se toma el tiempo de inicio de la ejecución principal del programa
+    int distr = dimy/NUMTHREADS;
+
+    pthread_t tHandles[NUMTHREADS];    
+    struct params inter[NUMTHREADS][NUMTHREADS];
     clock_gettime(CLOCK_REALTIME, &ts1);                    
-   	#pragma omp parallel num_threads(NUMTHREADS)                
-    {
-        int th = omp_get_thread_num();          // ID del hilo en ejecución
+	for ( k = 0; k < NUMTHREADS; k++ ) {
+        inter[k][0].dimx = dimx;
+        inter[k][0].dimy = dimy;
+        inter[k][0].ini = k * distr;
+		inter[k][0].end = inter[k][0].ini + distr;
+        inter[k][0].filter = filter;
+		int err = pthread_create(&tHandles[k], NULL, kernel, (void*)&inter[k][0]);
+        if(err != 0){ cout << "Error in pthread"; }
+	}   
 
-        // Se agrupan los parámetros que se necesitan para procesar la imagen
-        // para luego enviarlos al kernel de ejecución
-        struct params *sendParams;
-        sendParams = (struct params *) malloc(sizeof(params));
-        // Se indica el inicio y final de la porción de imagen con la que va a trabajar el hilo
-    
-        sendParams->ini     = th * distr;                        
-		sendParams->end     = sendParams->ini + distr -1;        
-        sendParams->filter  = filter;           
-        sendParams->dimx    = dimx;
-        sendParams->dimy    = dimy;
+    for ( i = 0; i < NUMTHREADS; i++ ) {
+        struct params *getParams;
+		pthread_join(tHandles[i], NULL);
+        inter[i][0] = *getParams;
+	}
 
-        // Luego de agrupar los parámetros de ejecución del kernel en "sendParams"
-        // se envían y se guarda el resultado en el primer arreglo de "inter"
-		kernel( sendParams );   
-    }
-
-    #pragma omp barrier
-
-    
     // Se toma el tiempo total de ejecución para luego imprimirlo.
     clock_gettime(CLOCK_REALTIME, &ts2);            
     printf("%ld.%09ld\n", (long)(ts2.tv_sec - ts1.tv_sec), abs(ts2.tv_nsec - ts1.tv_nsec));   
