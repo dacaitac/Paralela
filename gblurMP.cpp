@@ -93,8 +93,6 @@ int main(int argc, char** argv ){
     int dimy = imageIn->height;
     int dimx = imageIn->width;
 
-    cout << "Dimension: " << dimx << "x"  << dimy << endl;
-
     gauss = (float**) malloc(filter * sizeof(float *));
     for(i = 0; i < filter; i++){
         gauss[i] = (float *) malloc(filter * sizeof(float));
