@@ -8,7 +8,7 @@ threads = [1, 2 ,4, 8, 16]
 images = [ '720', '1080', '4k']
 
 
-f = open("Outs MP", 'a')
+f = open("Outs MP.txt", 'a')
 f.write("Imagen Hilos Kernel Tiempo\n")
 for i in images:
     for k in kernel:
@@ -21,7 +21,7 @@ f.close()
 
 os.system("g++ gblurPX.cpp -fopenmp -o blurPX `pkg-config --cflags --libs opencv`")
 
-f = open("Outs Posix", 'a')
+f = open("Outs Posix.txt", 'a')
 f.write("Imagen Hilos Kernel Tiempo\n")
 for i in images:
     for k in kernel:

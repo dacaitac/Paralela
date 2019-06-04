@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <cuda_runtime.h>
 #include "opencv2/opencv.hpp"
-#include "opencv2/gpu/gpu.hpp"
+#include "opencv2/core.hpp"
 
 using namespace std;
 using namespace cv;
@@ -40,6 +40,7 @@ __global__ void blur(unsigned char *pixels, int rows, int cols, int channels, in
 }
 
 int main(int args, char *argv[]){
+    struct timespec ts1, ts2;                       // Variables para tomar el tiempo
 
 	char *file = argv[1];
 	char *file_output = argv[2];
@@ -89,9 +90,9 @@ int main(int args, char *argv[]){
 	int threadsPerBlock = n_threads;
 	int blocksPerGrid = n_blocks;
 	int numThreads = threadsPerBlock * blocksPerGrid;
+    clock_gettime(CLOCK_REALTIME, &ts1);                   
     
-    //Llamamos a la función a paralelizar
-	
+    //Llamamos a la función a paralelizar	
 	blur<<<blocksPerGrid, threadsPerBlock>>>(d_pixels, h_result.rows, h_result.cols, h_result.channels(), kernel, numThreads);
 	
 	
@@ -124,7 +125,9 @@ int main(int args, char *argv[]){
 		cout<<"Failed at reset device"<<endl;
 		exit(EXIT_FAILURE);
 	}
-	
+
+	clock_gettime(CLOCK_REALTIME, &ts2);            
+    printf("%ld.%09ld\n", (long)(ts2.tv_sec - ts1.tv_sec), abs(ts2.tv_nsec - ts1.tv_nsec));   
 	imwrite( file_output, h_result );
 	return 0;
 }
