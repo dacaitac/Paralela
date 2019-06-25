@@ -16,10 +16,11 @@ for i in images:
             name = './blurMP ' + str(i) + '.jpg ' + str(t) + ' ' + str(k)
             a = commands.getoutput(name)
             print "Image: " + i + " Threads: " + str(t) + " Kernel: " + str(k) + " Time: " + a
-            f.write(i + " " + str(t) + " " + str(k) + " " + a + "\n")
+            f.write(a + " ")
+        f.write("\n")
 f.close()                
 
-os.system("g++ gblurPX.cpp -fopenmp -o blurPX `pkg-config --cflags --libs opencv`")
+os.system("g++ gblurPX.cpp -lpthread -o blurPX `pkg-config --cflags --libs opencv`")
 
 f = open("Outs Posix.txt", 'a')
 f.write("Imagen Hilos Kernel Tiempo\n")
@@ -29,5 +30,6 @@ for i in images:
             name = './blurPX ' + str(i) + '.jpg ' + str(t) + ' ' + str(k)
             a = commands.getoutput(name)
             print "Image: " + i + " Threads: " + str(t) + " Kernel: " + str(k) + " Time: " + a
-            f.write(i + " " + str(t) + " " + str(k) + " " + a + "\n")
+            f.write(a + " ")
+        f.write("\n")
 f.close()                

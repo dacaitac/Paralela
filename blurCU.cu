@@ -86,8 +86,18 @@ int main(int args, char *argv[]){
 	}
 	
 //  Calcular el numero de bloques y el numero de hilos
+
+	int threadsPerBlock = 0;
+	int nDevices;
+	cudaGetDeviceCount(&nDevices);
+	cudaDeviceProp prop;
 	
-	int threadsPerBlock = n_threads;
+	for(int i = 0; i < nDevices; i++){
+		cudaGetDeviceProperties(&prop, i);
+		threadsPerBlock += prop.maxThreadsPerBlock;
+	}
+	
+
 	int blocksPerGrid = n_blocks;
 	int numThreads = threadsPerBlock * blocksPerGrid;
     clock_gettime(CLOCK_REALTIME, &ts1);                   
@@ -131,3 +141,4 @@ int main(int args, char *argv[]){
 	imwrite( file_output, h_result );
 	return 0;
 }
+

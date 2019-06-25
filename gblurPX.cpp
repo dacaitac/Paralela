@@ -28,13 +28,13 @@ void *kernel(void *pArg){
     int i, j, k, l, m;
     struct params *p;
 	p = (struct params *)pArg;
-
+    
     // Separa los atributos que llegan por parámetro
-    int y1 = p->ini;
-    int y2 = p->end;
-    int dimy = p->dimy;
-    int dimx = p->dimx;
-    int filter = p->filter;
+    int y1      = p->ini;
+    int y2      = p->end;
+    int dimy    = p->dimy;
+    int dimx    = p->dimx;
+    int filter  = p->filter;
     
     int rad = filter/2;                 // El "radio" de la matriz de convolcion
     //----------------- CONVOLUCION ----------------------
@@ -42,7 +42,7 @@ void *kernel(void *pArg){
     //j = Recorre en x
     //m = Extiende x
     //l = Extiende l
-    for(i = y1; i < y2; i++){
+    for(i = y1; i < y2; i++){                       
         for(j = 0; j < dimx; j++){
             CvScalar pixelIn;
             CvScalar pixelOut;
