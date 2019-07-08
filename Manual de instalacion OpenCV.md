@@ -3,13 +3,15 @@
 
 ## Instalación OpenCV
 
+### Instalar CMake
+De todas las versiones que probé esta fue la primera que funcionó sin errores.
+Hay que tener en cuenta que es necesario instalar la GUI, para después en modo gráfico agregar y eliminar las dependencias que se van a utilizar en el proyecto, como OpenMP y CUDA.
+
+
 Hay que tener en cuenta los requerimientos que dicen en el sitio oficial 
 
 [https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html](https://docs.opencv.org/master/d7/d9f/tutorial_linux_install.html)
 
-### Instalar CMake
-De todas las versiones que probé esta fue la primera que funcionó sin errores.
-Hay que tener en cuenta que es necesario instalar la GUI, para después en modo gráfico agregar y eliminar las dependencias que se van a utilizar en el proyecto, como OpenMP y CUDA.
 
 [http://embedonix.com/articles/linux/installing-cmake-3-5-2-on-ubuntu/](http://embedonix.com/articles/linux/installing-cmake-3-5-2-on-ubuntu/)
 
