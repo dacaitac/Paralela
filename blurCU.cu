@@ -141,4 +141,3 @@ int main(int args, char *argv[]){
 	imwrite( file_output, h_result );
 	return 0;
 }
-
